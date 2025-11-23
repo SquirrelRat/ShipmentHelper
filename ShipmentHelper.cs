@@ -40,12 +40,17 @@ namespace ShipmentHelper
 
         private readonly List<ShippingStrategy> _defaultStrategies = new List<ShippingStrategy>
         {
-            new ShippingStrategy { Name = "[Automatic] Currency", Type = StrategyType.Automatic, TargetReward = "Currency" },
+            new ShippingStrategy { Name = "[Automatic] Currency", Type = StrategyType.Automatic, TargetReward = "Regular currency" },
+            new ShippingStrategy { Name = "[Automatic] Armour", Type = StrategyType.Automatic, TargetReward = "Random Armour" },
+            new ShippingStrategy { Name = "[Automatic] Weapons", Type = StrategyType.Automatic, TargetReward = "Random Weapons" },
+            new ShippingStrategy { Name = "[Automatic] Jewellery", Type = StrategyType.Automatic, TargetReward = "Rings" },
+            new ShippingStrategy { Name = "[Automatic] Gems", Type = StrategyType.Automatic, TargetReward = "Quality skill gems" },
             new ShippingStrategy { Name = "[Automatic] Scarabs", Type = StrategyType.Automatic, TargetReward = "Scarabs" },
-            new ShippingStrategy { Name = "[Automatic] Expedition", Type = StrategyType.Automatic, TargetReward = "Expedition" },
-            new ShippingStrategy { Name = "[Automatic] Blight", Type = StrategyType.Automatic, TargetReward = "Blight" },
-            new ShippingStrategy { Name = "[Automatic] Heist", Type = StrategyType.Automatic, TargetReward = "Heist" },
-            new ShippingStrategy { Name = "[Automatic] Essences", Type = StrategyType.Automatic, TargetReward = "Essences" },
+            new ShippingStrategy { Name = "[Automatic] Stacked Decks", Type = StrategyType.Automatic, TargetReward = "Stacked Decks" },
+            new ShippingStrategy { Name = "[Automatic] Flasks", Type = StrategyType.Automatic, TargetReward = "Flasks" },
+            new ShippingStrategy { Name = "[Automatic] Jewels", Type = StrategyType.Automatic, TargetReward = "Jewels" },
+            new ShippingStrategy { Name = "[Automatic] Unique Items", Type = StrategyType.Automatic, TargetReward = "Unique Items" },
+            new ShippingStrategy { Name = "[Automatic] Splinters", Type = StrategyType.Automatic, TargetReward = "Splinters" },
             new ShippingStrategy { Name = "[Low-Invest] Tattoos", Type = StrategyType.Recipe, TargetPort = "Ngakanu", RequiredResources = new Dictionary<string, int> { { "Corn", 10000 }, { "Wheat", 10000 }, { "Pumpkin", 10000 }, { "Orgourd", 10000 }, { "Blue Zanthimum", 10000 }, { "Thaumaturgic Dust", 1 } } },
             new ShippingStrategy { Name = "[Low-Invest] Divine Orb", Type = StrategyType.Recipe, TargetPort = "Kalguur", RequiredResources = new Dictionary<string, int> { { "Blue Zanthimum", 10000 } } },
             new ShippingStrategy { Name = "[High-Invest] Mirror Shard", Type = StrategyType.Recipe, TargetPort = "Riben Fell", RequiredResources = new Dictionary<string, int> { { "Corn", 315000 }, { "Wheat", 315000 }, { "Thaumaturgic Dust", 1 } } },
@@ -55,14 +60,78 @@ namespace ShipmentHelper
         private static readonly Dictionary<int, string> PortIndexMap = new Dictionary<int, string> { { 0, "Riben Fell" }, { 1, "Ngakanu" }, { 2, "Pondium" }, { 3, "Te Onui" }, { 4, "Kalguur" } };
         private bool _isPreparingShipment = false;
         
-        private readonly Dictionary<string, (string Port, int Value, string RewardType)> _resourceInfo = new Dictionary<string, (string, int, string)>
+        private readonly Dictionary<string, Dictionary<string, (int Value, string Reward)>> _resourceInfo = new Dictionary<string, Dictionary<string, (int, string)>>
         {
-            {"Crimson Iron Bar", ("Pondium", 40, "Heist") }, {"Orichalcum Bar", ("Pondium", 40, "Heist") }, {"Petrified Amber Bar", ("Pondium", 50, "Heist") }, {"Bismuth Bar", ("Pondium", 50, "Heist") },
-            {"Verisium Bar", ("Riben Fell", 60, "Scarabs") },
-            {"Wheat", ("Kalguur", 20, "Currency") }, {"Corn", ("Kalguur", 20, "Currency") },
-            {"Pumpkin", ("Te Onui", 20, "Blight") },
-            {"Orgourd", ("Riben Fell", 20, "Essences") },
-            {"Blue Zanthimum", ("Pondium", 20, "Expedition") }
+            {"Crimson Iron Bar", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (16, "Random Armour")},
+                {"Ngakanu", (16, "Str Armour")},
+                {"Pondium", (16, "Int Armour")},
+                {"Te Onui", (16, "Dex Armour")},
+                {"Kalguur", (16, "Random Armour")}
+            }},
+            {"Orichalcum Bar", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (19, "Random Weapons")},
+                {"Ngakanu", (19, "Str Weapons")},
+                {"Pondium", (19, "Int Weapons")},
+                {"Te Onui", (19, "Dex Weapons")},
+                {"Kalguur", (19, "Random Weapons")}
+            }},
+            {"Petrified Amber Bar", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (24, "Rings")},
+                {"Ngakanu", (24, "Belts")},
+                {"Pondium", (24, "Amulets")},
+                {"Te Onui", (24, "Jewellery with quality")},
+                {"Kalguur", (24, "Rings, Belts")}
+            }},
+            {"Bismuth Bar", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (37, "Quality skill gems")},
+                {"Ngakanu", (37, "Quality support gems")},
+                {"Pondium", (37, "Flasks")},
+                {"Te Onui", (37, "Jewels")},
+                {"Kalguur", (37, "Ward Armour")}
+            }},
+            {"Verisium Bar", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (64, "Scarabs")},
+                {"Ngakanu", (64, "Stacked Decks")},
+                {"Pondium", (64, "Catalysts, Oils, Fossils")},
+                {"Te Onui", (64, "Unique Items")},
+                {"Kalguur", (64, "Splinters")}
+            }},
+            {"Wheat", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (12, "Regular currency")},
+                {"Ngakanu", (12, "Regular currency")},
+                {"Pondium", (12, "Regular currency")},
+                {"Te Onui", (12, "Regular currency")},
+                {"Kalguur", (12, "Regular currency")}
+            }},
+            {"Corn", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (15, "Regular currency")},
+                {"Ngakanu", (15, "Regular currency")},
+                {"Pondium", (15, "Regular currency")},
+                {"Te Onui", (15, "Regular currency")},
+                {"Kalguur", (15, "Regular currency")}
+            }},
+            {"Pumpkin", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (18, "Regular currency")},
+                {"Ngakanu", (18, "Regular currency")},
+                {"Pondium", (18, "Regular currency")},
+                {"Te Onui", (18, "Regular currency")},
+                {"Kalguur", (18, "Regular currency")}
+            }},
+            {"Orgourd", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (21, "Regular currency")},
+                {"Ngakanu", (21, "Regular currency")},
+                {"Pondium", (21, "Regular currency")},
+                {"Te Onui", (21, "Regular currency")},
+                {"Kalguur", (21, "Regular currency")}
+            }},
+            {"Blue Zanthimum", new Dictionary<string, (int, string)> {
+                {"Riben Fell", (24, "Regular currency")},
+                {"Ngakanu", (24, "Regular currency")},
+                {"Pondium", (24, "Regular currency")},
+                {"Te Onui", (24, "Regular currency")},
+                {"Kalguur", (24, "Regular currency")}
+            }}
         };
 
         public override bool Initialise()
@@ -347,7 +416,14 @@ namespace ShipmentHelper
             if (strategy?.Type == StrategyType.Automatic && suggestedGoals.Any())
             {
                 var firstGoalResource = suggestedGoals.First().Key;
-                targetPortName = _resourceInfo.FirstOrDefault(x => x.Key == firstGoalResource).Value.Port;
+                if (_resourceInfo.ContainsKey(firstGoalResource) && _resourceInfo[firstGoalResource].ContainsKey("Riben Fell"))
+                {
+                    targetPortName = "Riben Fell";
+                }
+                else
+                {
+                    targetPortName = "Riben Fell"; // Default fallback
+                }
             }
             else if (targetPortName == "Dynamic")
             {
@@ -372,23 +448,79 @@ namespace ShipmentHelper
                 int resourceIndex = invertedResourceMap[resourceName];
                 var inputElement = resourceListContainer.GetChildAtIndex(resourceIndex)?.GetChildAtIndex(2)?.GetChildAtIndex(0);
                 if (inputElement == null) { LogError($"Could not find input element for {resourceName}", 5); continue; }
-                Input.SetCursorPos(inputElement.GetClientRect().Center);
-                await Task.Delay(50);
-                Input.Click(MouseButtons.Left);
-                await Task.Delay(50);
-                for (int i = 0; i < 10; i++) { Input.KeyDown(Keys.Back); await Task.Delay(20); Input.KeyUp(Keys.Back); await Task.Delay(20); }
-                await Task.Delay(50);
-                string amountString = requiredAmount.ToString();
-                foreach (char digit in amountString)
+                
+                if (Settings.DebugLogging.Value)
                 {
-                    if (Enum.TryParse($"D{digit}", out Keys key))
-                    {
-                        Input.KeyDown(key); await Task.Delay(40); Input.KeyUp(key); await Task.Delay(40);
-                    }
+                    LogMessage($"[DEBUG] Processing {resourceName}: {requiredAmount}", 5, Color.Yellow);
+                    var rect = inputElement.GetClientRect();
+                    LogMessage($"[DEBUG] Input element rect: {rect}", 5, Color.Yellow);
+                    
+                    Input.SetCursorPos(rect.Center);
+                    await Task.Delay(100);
+                    LogMessage($"[DEBUG] Mouse positioned, clicking now", 5, Color.Yellow);
+                    Input.Click(MouseButtons.Left);
+                    await Task.Delay(200);
+                    LogMessage($"[DEBUG] Click completed, clearing input", 5, Color.Yellow);
                 }
+                else
+                {
+                    Input.SetCursorPos(inputElement.GetClientRect().Center);
+                    await Task.Delay(100);
+                    Input.Click(MouseButtons.Left);
+                    await Task.Delay(200);
+                }
+                
+                // Clear existing input with more aggressive approach
+                Input.KeyDown(Keys.Control);
+                Input.KeyDown(Keys.A);
                 await Task.Delay(50);
+                Input.KeyUp(Keys.A);
+                Input.KeyUp(Keys.Control);
+                await Task.Delay(50);
+                Input.KeyDown(Keys.Back);
+                await Task.Delay(50);
+                Input.KeyUp(Keys.Back);
+                await Task.Delay(100);
+                
+                if (Settings.DebugLogging.Value)
+                {
+                    LogMessage($"[DEBUG] Input cleared, typing: {requiredAmount}", 5, Color.Yellow);
+                    string amountString = requiredAmount.ToString();
+                    foreach (char digit in amountString)
+                    {
+                        if (Enum.TryParse($"D{digit}", out Keys key))
+                        {
+                            LogMessage($"[DEBUG] Typing digit: {digit}", 5, Color.Cyan);
+                            Input.KeyDown(key); 
+                            await Task.Delay(80); 
+                            Input.KeyUp(key); 
+                            await Task.Delay(80);
+                        }
+                    }
+                    await Task.Delay(100);
+                    LogMessage($"[DEBUG] Finished typing {resourceName}", 5, Color.Green);
+                }
+                else
+                {
+                    // Non-debug mode: just type the amount directly
+                    string amountString = requiredAmount.ToString();
+                    foreach (char digit in amountString)
+                    {
+                        if (Enum.TryParse($"D{digit}", out Keys key))
+                        {
+                            Input.KeyDown(key); 
+                            await Task.Delay(80); 
+                            Input.KeyUp(key); 
+                            await Task.Delay(80);
+                        }
+                    }
+                    await Task.Delay(100);
+                }
             }
-            LogMessage("--- Auto-Shipment Finished ---", 5, Color.LawnGreen);
+            if (Settings.DebugLogging.Value)
+            {
+                LogMessage("--- Auto-Shipment Finished ---", 5, Color.LawnGreen);
+            }
             _isPreparingShipment = false;
         }
 
@@ -410,11 +542,23 @@ namespace ShipmentHelper
         private Dictionary<string, int> GetAutomaticSuggestion(Dictionary<string, int> available, ShippingStrategy strategy)
         {
             var suggestedGoals = new Dictionary<string, int>();
-            var relevantResources = _resourceInfo
-                .Where(x => x.Value.RewardType == strategy.TargetReward)
-                .Select(x => x.Key)
-                .ToList();
+            var relevantResources = new List<string>();
+            
+            // Find resources that match the target reward type across all ports
+            foreach (var resourceEntry in _resourceInfo)
+            {
+                foreach (var portEntry in resourceEntry.Value)
+                {
+                    if (portEntry.Value.Reward == strategy.TargetReward)
+                    {
+                        relevantResources.Add(resourceEntry.Key);
+                        break;
+                    }
+                }
+            }
+            
             if (!relevantResources.Any()) return null;
+            
             float percentage = 0.75f;
             switch(Settings.AutomaticPercentageToSend.Value)
             {
@@ -423,7 +567,8 @@ namespace ShipmentHelper
                 case "75%": percentage = 0.75f; break;
                 case "100%": percentage = 1.00f; break;
             }
-            foreach(var resource in relevantResources)
+            
+            foreach(var resource in relevantResources.Distinct())
             {
                 if (available.TryGetValue(resource, out int availableAmount) && availableAmount > 0)
                 {
@@ -451,11 +596,11 @@ namespace ShipmentHelper
 
         private readonly List<PortInfo> _portInfos = new List<PortInfo>
         {
-            new PortInfo { Name = "Riben Fell", Distance = 140, SpecialRewards = new List<string> { "Scarabs", "Essences", "Currency" } },
-            new PortInfo { Name = "Ngakanu", Distance = 186, SpecialRewards = new List<string> { "Tattoos", "Currency" } },
-            new PortInfo { Name = "Pondium", Distance = 870, SpecialRewards = new List<string> { "Heist", "Expedition", "Currency" } },
-            new PortInfo { Name = "Te Onui", Distance = 939, SpecialRewards = new List<string> { "Blight", "Tattoos", "Currency" } },
-            new PortInfo { Name = "Kalguur", Distance = 2317, SpecialRewards = new List<string> { "Currency" } }
+            new PortInfo { Name = "Riben Fell", Distance = 140, SpecialRewards = new List<string> { "Runegrafts", "Ynda's Stand", "Cadigan's Authority" } },
+            new PortInfo { Name = "Ngakanu", Distance = 186, SpecialRewards = new List<string> { "Tattoos", "Kaom's Command", "Tawhoa's Felling" } },
+            new PortInfo { Name = "Pondium", Distance = 870, SpecialRewards = new List<string> { "Runegrafts", "Ynda's Stand", "Cadigan's Authority" } },
+            new PortInfo { Name = "Te Onui", Distance = 939, SpecialRewards = new List<string> { "Tattoos", "Kaom's Command", "Tawhoa's Felling" } },
+            new PortInfo { Name = "Kalguur", Distance = 2317, SpecialRewards = new List<string> { "Runegrafts", "Ynda's Stand", "Cadigan's Authority" } }
         };
 
         private readonly Dictionary<long, string> _portAddressToNameCache = new Dictionary<long, string>();
